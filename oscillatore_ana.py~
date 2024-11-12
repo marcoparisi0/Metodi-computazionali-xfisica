@@ -1,0 +1,21 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from  scipy import integrate
+import math
+import argparse
+
+float(x0) = input('Immettere punto di partenza da cui calcolare il periodo (intervallo di integrazione [0, x0] : ')
+float(k)=input('inserire la costante elastica k:')
+float(m)=input('inserire la massa:')
+
+def V(x):
+    return k*(x**6)
+
+x  = np.arange(0,x0, 0.1)
+integranda=np.sqrt(8*m)*(1/(np.sqrt(V(x0)-V(x))))
+integrale=integrate.simpson(integranda, dx=x0/1000)
+
+print('il valore del periodo è   T:', integrale)
+
+
