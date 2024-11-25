@@ -56,8 +56,16 @@ axs[2].set_title('filtro passa basso RC=0.25')
 plt.show()
 
 
+fig,ax = plt.subplots(figsize=(9,6))
+plt.plot(time,v(time), color='red',label='V in')
+plt.plot(time,vv_4,color= 'purple', label='RC=4')
+plt.plot(time,vv_1,color= 'green', label='RC=1')
+plt.plot(time,vv,color= 'blue', label='RC=0.25')
+plt.legend(fontsize=7)
+plt.show()
 
 #salvataggio dati su CSV
+"""
 dati = {
     "V con RC=4": vv_4[:,0],
     "V con RC=1": vv_1[:,0],
@@ -68,3 +76,4 @@ dati = {
 #potevo usare .flatten che li appiattisce
 df = pd.DataFrame(dati)
 df.to_csv("output.csv", index=False)
+"""
