@@ -10,6 +10,10 @@ import math
 
 """
 Definizione valori e funzioni utili
+
+
+!!!!probabilmente conviene cambiare le unità d misura!!!!
+
 """
 T_sun=5.75*(10**3)   #K
 T_sau=1.9*(10**3)
@@ -43,7 +47,8 @@ def D_scatter(l,s,T):
     return  D(l,T)*np.exp(-beta(l)*s)
 
 
-lmbd=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)  # in  m   considero spettro da UV a infrarossi
+la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)  # in  m   considero spettro da UV a infrarossi
+lmbd=np.sort(la)
 
 
 
@@ -74,7 +79,7 @@ plt.show()
 
 
 #PLOT NORMALI SOLE
-plt.plot(np.sort(lmbd),np.sort(B(lmbd,T_sun)), color='mediumvioletred')
+plt.plot(lmbd,B(lmbd,T_sun), color='mediumvioletred')
 plt.show()
 """
 plt.scatter(lmbd,D(lmbd,T_sun), color='darkgreen', marker='2')
@@ -168,19 +173,34 @@ fare meglio i grafici e spiegare andamenti
 """
 STELLA X
 
-cose da fare: moltiplica per quel fattore che toglie la roba di rayleigh (conosco l'angolo)
-poi fai un fit con la funzione nota, usando scipy optimize(o altro???) , e ottengo la temperatura
+PROBABILMENTE NON TORNA PERCHÈ (e in questo caso dovrei modificare anche la roba prima) sto facendo il fit con la densità di fotonii, e io qua ho il numero di fotoni, quindi...
+
+cose da fare: scrivere bene il risultato, confrontare con il grafico fittato, far vedere lo scarto
 """
 
 dati=pd.read_csv('observed_starX.csv')
 #print(dati)
-ll=dati['lambda (nm)']
+l_nm=dati['lambda (nm)']
+ll=l_nm*(10**(-9))
 ph=dati['photons']
 #print(ll)
 #print(ph)
 
 
-plt.plot(ll*(10**(-9)),ph, color= 'green')
+plt.plot(ll,ph, color= 'green')
+plt.show()
+
+
+ph_c=ph*np.exp(beta(l_nm)*S_teta(pi/4))  #in nm, sennò non calcola
+
+Tx, Tx_cov = optimize.curve_fit(D,ll,ph_c,10**(-9)))
+
+print(Tx)
+print(Tx_cov)
+
+
+plt.plot(ll,ph, color= 'green')
+plt.plot(ll,D(ll,Tx),color='red')
 plt.show()
 
 
