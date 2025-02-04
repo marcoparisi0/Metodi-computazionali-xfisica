@@ -55,9 +55,12 @@ def D_scatter(l,s,T):
 
 la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)  # in  m   considero spettro da UV a infrarossi
 #la=np.random.uniform(low=1, high=5000, size=10000)
+
+plt.hist(la, bins=25, alpha=0.8, color='green', ec='darkgreen')
+plt.title('Distribuzione uniforme lambda')
+plt.show()
+
 lmbd=np.sort(la)
-
-
 
 
 
@@ -97,8 +100,7 @@ plt.show()
 
 
 DA FARE:
-far vedere distriuzione lambda
-provare a fare i plot senza scatter, ordinando i punti
+
 individuare il picco
 dividere per 'colori'
 """
@@ -109,11 +111,25 @@ dividere per 'colori'
 
 
 """
-per il flusso integrato integro D(l,T) tra i limiti scelti di lambda, mi va in overflow !!!
+per il flusso integrato integro D(l,T) tra i limiti scelti di lambda
 """
 
+
+
 te=np.random.uniform(low=0,high=pi,size=1000)
+
+
+plt.hist(te, bins=25, alpha=0.8, color='violet', ec='darkviolet')
+plt.title('Distribuzione uniforme angoli [0,pi]')
+plt.show()
+
+
 teta=np.sort(te)
+
+
+
+
+
 
 f=[]
 for t in teta:
@@ -151,6 +167,9 @@ plt.show()
 
 
 
+
+
+
 """
 GRAFICO NORMALE SOLE
 plt.scatter(S_teta(teta),f, color='teal')
@@ -160,8 +179,7 @@ plt.show()
 
 
 FINO A QUI OKK    (considerando buona l'approssimazione dell'esponenziale)
-DA FARE
-fare vedere distribuzione teta e lmbd
+DA FAR
 fare meglio i grafici e spiegare andamenti
 """
 
@@ -195,11 +213,12 @@ fare meglio i grafici e spiegare andamenti
 """
 STELLA X
 
-PROBABILMENTE NON TORNA PERCHÈ (e in questo caso dovrei modificare anche la roba prima) sto facendo il fit con la densità di fotonii, e io qua ho il numero di fotoni, quindi...
+faccio il fit con la formula D_scatter, utilizzando photons, invece di modificare photons e fare il fit con D  (credo vada bene lo stesso). uso formula B.
 
-cose da fare: scrivere bene il risultato, confrontare con il grafico fittato, far vedere lo scarto, chi quadro
+cose da fare:
+scrivere bene il risultato, confrontare con il grafico fittato, far vedere lo scarto, chi quadro---prendendo spunto da esercitazione J/psi, capire e spiegare come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
 
-
+FINO A QUI OKK
 """
 
 
@@ -209,7 +228,7 @@ dati=pd.read_csv('observed_starX.csv')
 #print(dati)
 l_nm=dati['lambda (nm)']
 ll=l_nm*(10**(-9))
-ph=dati['photons']
+ph=dati['photons']  #eliminare i punti a 0 --> provato, visto che non cambia nulla, se non un ovvio aumento di 0.0002 K della temperatura
 #print(ll)
 #print(ph)
 
@@ -218,25 +237,63 @@ plt.plot(ll,ph, color= 'green')
 plt.show()
 
 
-ph_c=ph*np.exp(beta(ll)*S_teta(pi/4))  #in nm, sennò non calcola
-
-#porco=[]
-#for i in range(len(ph)):
- #   porco.append(ph[i]-ph_c[i])
-
     
-#print(porco)
+def B_scatter(l,T,scala):
+    return scala*(2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))       #usare quella approssimata? (sicuramnete non mi evita l'utilizzo dei parametri)
+    
 
+pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[3000, 1e-10])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
 
-
-#print(ph_c)
-Tx, Tx_cov = optimize.curve_fit(D,ll,ph_c)
+Tx=pm[0]
+sk=pm[1]
 
 print(Tx)
-print(Tx_cov)
 
-plt.plot(ll,D(ll,Tx),color='red')
-plt.plot(ll,ph_c, color= 'blue')
+plt.plot(ll,ph,color='green')
+plt.plot(ll,B_scatter(ll,Tx,sk), color='red')
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+così come avevo provato al contrario--> probBILMENTE, A PARTE CHE INCONTRAVO ERRORI COMPUTAZIONALI, CON QUALCHE ACCORTEZZA SAREBBE ANDATO BENE UGUALE, AVREI DOVUTO IMPOSTARE PROBABLY DEI PARAMETRI PER FARE IL FIT, MA COMUNQUE, CON IL METODO SOPRA RISULTA TUTTO PIÙ PULITO SENZA ARTEFATTI STRANI....QUI INCOONTRAVO   NaN....
+
+
+
+#ph_c=ph*np.exp(beta(l_nm)*S_teta(pi/4))    #il problema  che porta i NaN è lambda , metto in nm
+ph_c=ph*np.exp(beta(ll)*S_teta(pi/4))
+
+
+ph_ccc=np.nan_to_num(ph_c, nan=0) 
+mask= ph_ccc <0.01
+ph_cf=ph_ccc.copy()
+ph_cf[mask]=0
+
+
+def D_fit(l,T,A):
+    return A*2*c*np.exp(-h*c/(l*k*T))/(l**4)
+
+Tx, Tx_cov = optimize.curve_fit(D_fit,ll,ph_cf)
+
+"""
 
 
