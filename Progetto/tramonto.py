@@ -13,6 +13,11 @@ Definizione valori e funzioni utili
 
 
 il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.expm1(arg), veniva calcolato e^... , poi sottratto 1 e poi fatta la divisione. Questo causava overflow nel calcolo dell'esponente, essendo un numero moolto grosso.Dunque, essendo l'argomento dell'esponente >>1, ho considerato direttamente np.exp(-arg) che NON IMPLICA il calcolo di un exp con esponente gigante.  Spero vada bene
+
+
+
+DA FARE:
+creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??
 """
 
 
@@ -213,7 +218,7 @@ fare meglio i grafici e spiegare andamenti
 """
 STELLA X
 
-faccio il fit con la formula D_scatter, utilizzando photons, invece di modificare photons e fare il fit con D  (credo vada bene lo stesso). uso formula B.
+faccio il fit con la formula D_scatter, utilizzando photons, invece di modificare photons e fare il fit con D  (credo vada bene lo stesso). uso formula B, VA BENEE?---> SI VA BENE COGLIONE LEGGI LA CONSEGNA E LE COSE SOTTOLINEATE !!!
 
 cose da fare:
 scrivere bene il risultato, confrontare con il grafico fittato, far vedere lo scarto, chi quadro---prendendo spunto da esercitazione J/psi, capire e spiegare come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
@@ -239,8 +244,8 @@ plt.show()
 
     
 def B_scatter(l,T,scala):
-    return scala*(2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))       #usare quella approssimata? (sicuramnete non mi evita l'utilizzo dei parametri)
-    
+     return scala*(2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
+    # formula D, se servisse:   return scala*(2*c)/(np.expm1(h*c/(l*k*T))*(l**4))*np.exp(-beta(l)*S_teta(pi/4))
 
 pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[3000, 1e-10])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
 
