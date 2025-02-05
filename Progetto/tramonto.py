@@ -17,7 +17,8 @@ il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.exp
 
 
 DA FARE:
-creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??
+METTERE TUTTE LE DOCSTRING (vedi link lezione)
+creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??    Anche un qualcosa con argparse non sarebbe maleee
 """
 
 
@@ -57,7 +58,7 @@ def beta(l):
 def D_scatter(l,s,T):
     return  D(l,T)*np.exp(-beta(l)*s)
 
-
+"""
 la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)  # in  m   considero spettro da UV a infrarossi
 #la=np.random.uniform(low=1, high=5000, size=10000)
 
@@ -89,7 +90,7 @@ axs[1,3].plot(lmbd,D(lmbd,T_rigel), color='brown')
 axs[1,3].plot(lmbd,D_scatter(lmbd,S_z,T_rigel),  color='lightcoral')
 axs[1,3].plot(lmbd,D_scatter(lmbd,S_o,T_rigel),  color='darkred')
 plt.show()
-
+"""
 
 """
 #PLOT NORMALI SOLE
@@ -119,7 +120,7 @@ dividere per 'colori'
 per il flusso integrato integro D(l,T) tra i limiti scelti di lambda
 """
 
-
+"""
 
 te=np.random.uniform(low=0,high=pi,size=1000)
 
@@ -170,7 +171,7 @@ axs[1,0].plot(S_teta(teta),v, color='violet')
 axs[1,1].plot(S_teta(teta),r, color='sienna')
 plt.show()
 
-
+"""
 
 
 
@@ -221,7 +222,8 @@ STELLA X
 faccio il fit con la formula D_scatter, utilizzando photons, invece di modificare photons e fare il fit con D  (credo vada bene lo stesso). uso formula B, VA BENEE?---> SI VA BENE COGLIONE LEGGI LA CONSEGNA E LE COSE SOTTOLINEATE !!!
 
 cose da fare:
-scrivere bene il risultato, confrontare con il grafico fittato, far vedere lo scarto, chi quadro---prendendo spunto da esercitazione J/psi, capire e spiegare come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
+chi quadro--(aggiustarlo, errori?)
+capire e spiegare come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
 
 FINO A QUI OKK
 """
@@ -233,29 +235,67 @@ dati=pd.read_csv('observed_starX.csv')
 #print(dati)
 l_nm=dati['lambda (nm)']
 ll=l_nm*(10**(-9))
-ph=dati['photons']  #eliminare i punti a 0 --> provato, visto che non cambia nulla, se non un ovvio aumento di 0.0002 K della temperatura
+ph=dati['photons']  #eliminare i punti a 0 --> provato, visto che non cambia nulla, se non un ovvio aumento di 0.0002 K della temperatura. 
 #print(ll)
 #print(ph)
 
 
 plt.plot(ll,ph, color= 'green')
+plt.title('Spettro stella X')
+plt.xscale("Lunghezza d'onda [m]")
+#mettere unità di misura y
+plt.show()
+
+plt.hist(ph, bins=50, color='goldenrod', ec='darkgoldenrod',alpha=0.7 )
 plt.show()
 
 
-    
 def B_scatter(l,T,scala):
-     return scala*(2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
+     return scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
     # formula D, se servisse:   return scala*(2*c)/(np.expm1(h*c/(l*k*T))*(l**4))*np.exp(-beta(l)*S_teta(pi/4))
 
-pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[3000, 1e-10])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
+pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[6000, 1e-13])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
 
 Tx=pm[0]
 sk=pm[1]
 
-print(Tx)
 
-plt.plot(ll,ph,color='green')
-plt.plot(ll,B_scatter(ll,Tx,sk), color='red')
+print('{:<40} {:.1f} ± {:.1f} K'.format('La temperatura della StellaX  è:', Tx, np.sqrt(pm_cov[0,0])))
+
+
+ph_fit=B_scatter(ll,Tx,sk)
+#print('valori',ph,ph_fit)
+
+
+#chi2 =  np.sum(((ph-ph_fit)**2)/ph)    #in alcuni punti divide per zero...
+chi2=0
+for i in range(len(ph)):
+    if ph[i]== 0:
+        continue
+    chi2+=((ph[i]-ph_fit[i])**2)/ph[i]
+#print(chi2)
+# gradi di libertà
+d = len(ll)-len(pm)
+
+print('Il chi quadro ridotto vale  ', chi2/d)
+
+
+
+
+fig,axs = plt.subplots(3,1, figsize=(12,6))
+fig.subplots_adjust(hspace=0)
+axs[0].plot(ll,ph,color='darkgreen', label='Valori osservati')
+axs[0].plot(ll,ph_fit, color='red', label='Fit')
+axs[0].text(2.5*(10**-6), 300, r'$\chi^2$ rid : {:3.2f} '.format(chi2/d), fontsize=14, color='slategrey')
+axs[0].legend(fontsize=14, frameon=False)
+axs[1].errorbar(ll, ph/ph_fit,color='royalblue', fmt='o',alpha=0.5, label='Rapporto')
+axs[1].grid(True, axis='y')
+axs[1].axhline(1, color='red')
+axs[1].legend(fontsize=12)
+axs[2].errorbar(ll, np.abs(ph_fit-ph),color='violet', fmt='o',alpha=0.5, label='Scarto')
+axs[2].grid(True, axis='y')
+axs[2].axhline(0, color='red')
+axs[2].legend(fontsize=12)
 plt.show()
 
 
