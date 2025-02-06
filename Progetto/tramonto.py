@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import optimize
 from  scipy import integrate
-from scipy.constants import c,h,k,g, pi, G
+import matplotlib.colors as mcolors
+from scipy.constants import c,h,k, pi
 import math
 
 
 """
-Definizione valori e funzioni utili
+
 
 
 il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.expm1(arg), veniva calcolato e^... , poi sottratto 1 e poi fatta la divisione. Questo causava overflow nel calcolo dell'esponente, essendo un numero moolto grosso.Dunque, essendo l'argomento dell'esponente >>1, ho considerato direttamente np.exp(-arg) che NON IMPLICA il calcolo di un exp con esponente gigante.  Spero vada bene
@@ -17,50 +18,122 @@ il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.exp
 
 
 DA FARE:
-METTERE TUTTE LE DOCSTRING (vedi link lezione)
-creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??    Anche un qualcosa con argparse non sarebbe maleee
+
+creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??    Anche un qualcosa con argparse non sarebbe maleee, oppure una classe??
 """
 
+#DEFINIZIONE FUNZIONI E VALORI
 
 T_sun=5.75*(10**3)   #K
-T_sau=1.9*(10**3)
-T_vega=10*(10**3)
-T_rigel=25*(10**3)
+T_sau=1.9*(10**3)    #K
+T_vega=10*(10**3)    #K
+T_rigel=25*(10**3)   #K
 
 #parametri terrestri
-R_T=6378000 #m
-n_T=1.00029
-N_T=2.504*(10**25)
+R_T=6378000 # [m]   , Raggio terrestre
+n_T=1.00029  #indice di rifrazione atmosfera terrestre
+N_T=2.504*(10**25) # densità di molecole terrestre
 S_z=8000 #m
 S_o=np.sqrt((R_T+S_z)**2 -  R_T**2)
 
-#spessore di massa d'aria con angolo generico
+
 def S_teta(t):
+     
+    """
+    Funzione che descrive lo spessore di massa di aria dipendentemente da un angolo generico
+    Parametri
+    -----------
+        t: Angolo
+    
+    Restituisce
+        np.sqrt((R_T*np.cos(t))**2 +  2*R_T*S_z + S_z**2) - R_T*np.cos(t)
+    -----------
+ 
+    """
     return np.sqrt((R_T*np.cos(t))**2 +  2*R_T*S_z + S_z**2) - R_T*np.cos(t)
 
-#densità di energia irradiata
+
+
 def B(l,T):
-    #return  2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5))   #vera
-    return 2*h*(c**2)*np.exp(-h*c/(l*k*T))/(l**5)    #approx
+     """
+    Funzione che descrive la densità di energia irradiata da una stella
+    Parametri
+    -----------
+        l: Lunghezza d'onda
+        T: Temperatura della stella
+    
+    Restituisce
+        una versione approssimata,che risolve l'overflow dovuto al calcolo di np.exp
+     formula usata:    2*h*(c**2)*np.exp(-h*c/(l*k*T))/(l**5)
+     formula vera:    2*h*(c**2)/(np.expm1(h*c/(l*k*T))*(l**5))
+        
+    -----------
+ 
+    """
+     return 2*h*(c**2)*np.exp(-h*c/(l*k*T))/(l**5)    
 
 
-# densità di fotoni per lunghezza d'onda 
+
 def D(l,T):
-    #return 2*c/((l**4)*np.expm1(h*c/(l*k*T)))    #vera
-    return 2*c*np.exp(-h*c/(l*k*T))/(l**4)     #approx
+     """
+    Funzione che descrive la densità di fotoni per lunghezza d'onda 
+    Parametri
+    -----------
+        l: Lunghezza d'onda
+        T: Temperatura della stella
+    
+    Restituisce
+        una versione approssimata,che risolve l'overflow dovuto al calcolo di np.exp
+     formula usata:   2*c*np.exp(-h*c/(l*k*T))/(l**4)
+     formula vera:   2*c/((l**4)*np.expm1(h*c/(l*k*T)))
+        
+    -----------
+ 
+    """
+     return 2*c*np.exp(-h*c/(l*k*T))/(l**4)    
 
 
-# probabilità di interazione
+
 def beta(l):
-    return 8*pow(np.pi,3)*pow(n_T**2 - 1,2)/(3*N_T*l**4)
+     """
+    Funzione che descrive la  probabilità di interazione dei fotoni con l'atmosfera terrestre
+    Parametri
+    -----------
+        l: Lunghezza d'onda
+    
+    Restituisce
+        
+        8*pow(np.pi,3)*pow(n_T**2 - 1,2)/(3*N_T*l**4)
+    -----------
+ 
+    """
+     return 8*pow(np.pi,3)*pow(n_T**2 - 1,2)/(3*N_T*l**4)
 
 
 def D_scatter(l,s,T):
-    return  D(l,T)*np.exp(-beta(l)*s)
+     """
+    Funzione che descrive la  densità di fotoni per lunghezza d'onda modificata con la probabilità di interazione dei fotoni con l'atmosfera terrestre
+    Parametri
+    -----------
+        l: Lunghezza d'onda
+    
+    Restituisce
+        La distribuzione di fotoni solari considerando lo scattering di Rayleigh
+        D(l,T)*np.exp(-beta(l)*s)
+    -----------
+ 
+    """
+     return  D(l,T)*np.exp(-beta(l)*s)
 
-"""
+
+
+
+
+
+
+
 la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)  # in  m   considero spettro da UV a infrarossi
-#la=np.random.uniform(low=1, high=5000, size=10000)
+
 
 plt.hist(la, bins=25, alpha=0.8, color='green', ec='darkgreen')
 plt.title('Distribuzione uniforme lambda')
@@ -70,7 +143,63 @@ lmbd=np.sort(la)
 
 
 
+#PLOT  SOLE
+E=B(lmbd,T_sun)
+plt.plot(lmbd,E, color='black')
+plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+# Filtrare la parte visibile dello spettro
+mask = (lmbd >= 380e-9) & (lmbd <= 750e-9)
+lmbd_vis = lmbd[mask]
+E_vis = E[mask]
 
+# Creazione della colormap basata sulle lunghezze d'onda 
+cmap = plt.get_cmap("rainbow")  
+norm = mcolors.Normalize(vmin=380e-9, vmax=750e-9)  # Normalizzazione solo per il visibile
+colors = cmap(norm(lmbd_vis))
+for i in range(len(lmbd_vis) - 1):
+    plt.fill_between([lmbd_vis[i], lmbd_vis[i + 1]], 0, [E_vis[i], E_vis[i + 1]], color=colors[i])
+plt.show()
+
+#SOLE ORIZZONTE
+Tr=D_scatter(lmbd,S_o,T_sun)
+plt.plot(lmbd,Tr, color='black')
+plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+
+mask1 = (lmbd >= 380e-9) & (lmbd <= 750e-9)
+lmbd_vis1 = lmbd[mask]
+Tr_vis = Tr[mask]
+
+
+cmap1 = plt.get_cmap("rainbow")  
+norm1 = mcolors.Normalize(vmin=380e-9, vmax=750e-9) 
+colors1 = cmap1(norm1(lmbd_vis1))
+for i in range(len(lmbd_vis1) - 1):
+    plt.fill_between([lmbd_vis1[i], lmbd_vis1[i + 1]], 0, [Tr_vis[i], Tr_vis[i + 1]], color=colors1[i])
+plt.show()
+
+#SOLE ZENITH
+Z=D_scatter(lmbd,S_z,T_sun)
+plt.plot(lmbd,Z, color='black')
+plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+
+mask2 = (lmbd >= 380e-9) & (lmbd <= 750e-9)
+lmbd_vis2= lmbd[mask]
+Z_vis = Z[mask]
+
+
+cmap2 = plt.get_cmap("rainbow")  
+norm2 = mcolors.Normalize(vmin=380e-9, vmax=750e-9) 
+colors2 = cmap2(norm2(lmbd_vis2))
+for i in range(len(lmbd_vis2) - 1):
+    plt.fill_between([lmbd_vis2[i], lmbd_vis2[i + 1]], 0, [Z_vis[i], Z_vis[i + 1]], color=colors2[i])
+plt.show()
+
+
+
+#PLOT ALTRE STELLE
 fig,axs = plt.subplots(2,4, figsize=(12,6))
 axs[0,0].plot(lmbd,B(lmbd,T_sun),color='darkgoldenrod')
 axs[0,1].plot(lmbd,B(lmbd,T_sau),color='navy')
@@ -90,25 +219,17 @@ axs[1,3].plot(lmbd,D(lmbd,T_rigel), color='brown')
 axs[1,3].plot(lmbd,D_scatter(lmbd,S_z,T_rigel),  color='lightcoral')
 axs[1,3].plot(lmbd,D_scatter(lmbd,S_o,T_rigel),  color='darkred')
 plt.show()
+
+
+
+
+
+
 """
-
-"""
-#PLOT NORMALI SOLE
-plt.plot(lmbd,B(lmbd,T_sun), color='mediumvioletred')
-plt.show()
-
-plt.scatter(lmbd,D(lmbd,T_sun), color='darkgreen', marker='2')
-plt.scatter(lmbd,D_scatter(lmbd,S_z,T_sun),  color='gold', marker= '2')
-plt.scatter(lmbd,D_scatter(lmbd,S_o,T_sun),  color='purple', marker= '2')
-plt.show()
-
-
-
-
 DA FARE:
 
-individuare il picco
-dividere per 'colori'
+individuare il picco di ognuno
+
 """
 
 
@@ -120,7 +241,7 @@ dividere per 'colori'
 per il flusso integrato integro D(l,T) tra i limiti scelti di lambda
 """
 
-"""
+
 
 te=np.random.uniform(low=0,high=pi,size=1000)
 
@@ -171,7 +292,7 @@ axs[1,0].plot(S_teta(teta),v, color='violet')
 axs[1,1].plot(S_teta(teta),r, color='sienna')
 plt.show()
 
-"""
+
 
 
 
@@ -242,7 +363,7 @@ ph=dati['photons']  #eliminare i punti a 0 --> provato, visto che non cambia nul
 
 plt.plot(ll,ph, color= 'green')
 plt.title('Spettro stella X')
-plt.xscale("Lunghezza d'onda [m]")
+plt.xlabel("Lunghezza d'onda [m]")
 #mettere unità di misura y
 plt.show()
 
@@ -251,8 +372,23 @@ plt.show()
 
 
 def B_scatter(l,T,scala):
-     return scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
-    # formula D, se servisse:   return scala*(2*c)/(np.expm1(h*c/(l*k*T))*(l**4))*np.exp(-beta(l)*S_teta(pi/4))
+      """
+    Funzione che descrive la densità di energia irradiata da una stella considerando l'effetto dello scattering di Rayleigh. Da utilizzare nel fit
+    Parametri
+    -----------
+        l: Lunghezza d'onda
+        T: Temperatura della stella
+        Scala: fattore di scala per il fit
+    
+    Restituisce
+        scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
+        
+    -----------
+ 
+    """
+      return scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
+
+
 
 pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[6000, 1e-13])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
 
@@ -273,11 +409,13 @@ for i in range(len(ph)):
     if ph[i]== 0:
         continue
     chi2+=((ph[i]-ph_fit[i])**2)/ph[i]
-#print(chi2)
+
 # gradi di libertà
 d = len(ll)-len(pm)
 
 print('Il chi quadro ridotto vale  ', chi2/d)
+
+
 
 
 
