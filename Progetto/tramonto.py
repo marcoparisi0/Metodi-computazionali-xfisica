@@ -11,16 +11,11 @@ import math
 
 """
 
-
-
 il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.expm1(arg), veniva calcolato e^... , poi sottratto 1 e poi fatta la divisione. Questo causava overflow nel calcolo dell'esponente, essendo un numero moolto grosso.Dunque, essendo l'argomento dell'esponente >>1, ho considerato direttamente np.exp(-arg) che NON IMPLICA il calcolo di un exp con esponente gigante.  Spero vada bene
 
 
+ho ripetuto letteralmente l'analisi delle altre stelle facendo copia e incolla, non so se va bene
 
-DA FARE:
-
-creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??    Anche un qualcosa con argparse non sarebbe maleee, oppure una classe??
-? ripetere cose specifiche fatte per il sole anche per le altre stelle?
 """
 
 #DEFINIZIONE FUNZIONI E VALORI
@@ -242,24 +237,9 @@ axs[1,3].plot(lmbd,D_scatter(lmbd,S_o,T_rigel),  color='darkred')
 plt.show()
 
 
-
-
-
-
 """
-DA FARE:
-
-individuare il picco di ognuno
-
-"""
-
-
-
-
-
-
-"""
-per il flusso integrato integro D(l,T) tra i limiti scelti di lambda
+per il flusso integrato integro D(l,T)scatter tra i limiti scelti di lambda
+DOVREI PROVARE A FARLO CON IL METODO MONTECARLO??
 """
 
 
@@ -328,9 +308,11 @@ plt.show()
 
 """
 FINO A QUI OKK    (considerando buona l'approssimazione dell'esponenziale)
-DA FARE
-fare meglio i grafici e spiegare andamenti
+
+da fare nel ppt:. spiegare andamenti
 """
+
+
 
 
 
@@ -373,7 +355,6 @@ FINO A QUI OKK
 
 
 
-
 dati=pd.read_csv('observed_starX.csv')
 #print(dati)
 l_nm=dati['lambda (nm)']
@@ -387,9 +368,6 @@ plt.plot(ll,ph, color= 'green')
 plt.title('Spettro stella X')
 plt.xlabel("Lunghezza d'onda [m]")
 #mettere unità di misura y
-plt.show()
-
-plt.hist(ph, bins=50, color='goldenrod', ec='darkgoldenrod',alpha=0.7 )
 plt.show()
 
 
@@ -412,7 +390,7 @@ def B_scatter(l,T,scala):
 
 
 
-pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[6000, 1e-13])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit 
+pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[6000, 1e-13])   #i parametri vanno usati PER FORZA in questo caso, altrimenti non riesce a fare il fit
 
 Tx=pm[0]
 sk=pm[1]
@@ -457,17 +435,6 @@ axs[2].grid(True, axis='y')
 axs[2].axhline(0, color='red')
 axs[2].legend(fontsize=12)
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
 
 
 
