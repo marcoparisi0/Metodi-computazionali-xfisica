@@ -10,12 +10,14 @@ import argparse
 import corpo_nero as cn
 from corpo_nero import T_sun,T_sau,T_vega,T_rigel,R_T,n_T,N_T,S_z,S_o
 
-
+"""
+avrei potuto creare una funzione che faceva automaticamente l'analisi della stella, cambiando solo il valore di T, senza dover riscrivere tutto, ma in questo modo posso gestire meglio l'analisi.
+"""
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Analisi spettri di emissione stelle')
-    parser.add_argument('-s', '--Sun',    action='store_true', help="Mostra l'analisi completa relativa al sole")
+    parser.add_argument('-s', '--Sun',    action='store_true', help="Mostra l'analisi completa relativa al Sole")
     parser.add_argument('-sa', '--Saurigae',    action='store_true', help="Mostra l'analisi completa relativa alla stella Saurigae")
     parser.add_argument('-v', '--Vega',    action='store_true', help="Mostra l'analisi completa relativa alla stella Vega")
     parser.add_argument('-r', '--Rigel',    action='store_true', help="Mostra l'analisi completa relativa alla stella Rigel")
@@ -242,13 +244,21 @@ if args.Saurigae == True:
 
 
 #confronto
-    plt.plot(lmbd,cn.D(lmbd,T_sau), color='goldenrod',label='senza assorbimento')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_sau),  color='gold',label='scattering posizione Zenith')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_sau),  color='tan',label='scattering posizione Orizzonte')
+    plt.plot(lmbd,cn.D(lmbd,T_sau), color='steelblue',label='senza assorbimento')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_sau),  color='lightskyblue',label='scattering posizione Zenith')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_sau),  color='aquamarine',label='scattering posizione Orizzonte')
     plt.legend()
     plt.title('Confronto distribuzioni fotoni')
     plt.xlabel(r'$\lambda$ [m]')
     plt.ylabel(r'$fotoni/sm^3$')
+   
+    ax_inset = plt.axes([0.75,0.75,0.2,0.2])
+    ax_inset.plot(lmbd, cn.D(lmbd, T_sau),color='steelblue')
+    ax_inset.plot(lmbd, cn.D_scatter(lmbd,S_z,T_sau), color='aquamarine')
+    ax_inset.plot(lmbd, cn.D_scatter(lmbd,S_o,T_sau), color='lightskyblue')
+    ax_inset.set_xlim(1.836e-6, 1.841e-6)
+    ax_inset.set_ylim(8.25e29, 8.60e29)
+    
     plt.show()
 
 
@@ -350,9 +360,9 @@ if args.Vega == True:
 
 
 #confronto
-    plt.plot(lmbd,cn.D(lmbd,T_vega), color='goldenrod',label='senza assorbimento')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_vega),  color='gold',label='scattering posizione Zenith')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_vega),  color='tan',label='scattering posizione Orizzonte')
+    plt.plot(lmbd,cn.D(lmbd,T_vega), color='limegreen',label='senza assorbimento')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_vega),  color='forestgreen',label='scattering posizione Zenith')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_vega),  color='palegreen',label='scattering posizione Orizzonte')
     plt.legend()
     plt.title('Confronto distribuzioni fotoni')
     plt.xlabel(r'$\lambda$ [m]')
@@ -459,9 +469,9 @@ if args.Rigel == True:
 
 
 #confronto
-    plt.plot(lmbd,cn.D(lmbd,T_rigel), color='goldenrod',label='senza assorbimento')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_rigel),  color='gold',label='scattering posizione Zenith')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_rigel),  color='tan',label='scattering posizione Orizzonte')
+    plt.plot(lmbd,cn.D(lmbd,T_rigel), color='lightcoral',label='senza assorbimento')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T_rigel),  color='indianred',label='scattering posizione Zenith')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T_rigel),  color='firebrick',label='scattering posizione Orizzonte')
     plt.legend()
     plt.title('Confronto distribuzioni fotoni')
     plt.xlabel(r'$\lambda$ [m]')
