@@ -20,6 +20,7 @@ il problema che avevo nell'esponente, è che, usando np.exp(arg)-1  ppure np.exp
 DA FARE:
 
 creare un modulo con tutte le funzioni? e poi file diversi per le diverse stelle e per il fit??    Anche un qualcosa con argparse non sarebbe maleee, oppure una classe??
+? ripetere cose specifiche fatte per il sole anche per le altre stelle?
 """
 
 #DEFINIZIONE FUNZIONI E VALORI
@@ -143,11 +144,12 @@ lmbd=np.sort(la)
 
 
 
-#PLOT  SOLE
+#PLOT SPETTRO  SOLE
 E=B(lmbd,T_sun)
 plt.plot(lmbd,E, color='black')
 plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
 plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+
 # Filtrare la parte visibile dello spettro
 mask = (lmbd >= 380e-9) & (lmbd <= 750e-9)
 lmbd_vis = lmbd[mask]
@@ -161,41 +163,60 @@ for i in range(len(lmbd_vis) - 1):
     plt.fill_between([lmbd_vis[i], lmbd_vis[i + 1]], 0, [E_vis[i], E_vis[i + 1]], color=colors[i])
 plt.show()
 
-#SOLE ORIZZONTE
-Tr=D_scatter(lmbd,S_o,T_sun)
-plt.plot(lmbd,Tr, color='black')
-plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
-plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
 
-mask1 = (lmbd >= 380e-9) & (lmbd <= 750e-9)
-lmbd_vis1 = lmbd[mask]
+
+
+
+#DISTRIBUZIONE FOTONI SOLE ORIZZONTE
+Tr=D_scatter(lmbd,S_o,T_sun)
 Tr_vis = Tr[mask]
 
+def D_scatter_min_o(l):
+    return -D_scatter(l,S_o,T_sun)
+ris_o=optimize.minimize(D_scatter_min_o,x0=8*(10**-7))
+l_max_o=ris_o.x[0]
+o_max=D_scatter(l_max_o,S_o,T_sun)
 
-cmap1 = plt.get_cmap("rainbow")  
-norm1 = mcolors.Normalize(vmin=380e-9, vmax=750e-9) 
-colors1 = cmap1(norm1(lmbd_vis1))
-for i in range(len(lmbd_vis1) - 1):
-    plt.fill_between([lmbd_vis1[i], lmbd_vis1[i + 1]], 0, [Tr_vis[i], Tr_vis[i + 1]], color=colors1[i])
+
+plt.plot(lmbd,Tr, color='black')
+plt.plot(l_max_o,o_max,'o',color='darkslateblue',label=r'\lambda$  = {:.2e} m'.format(l_max_o))
+plt.plot([l_max_o, l_max_o], [0, o_max], linestyle='dashed', color='darkslateblue', linewidth=1)
+plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.legend()
+
+for i in range(len(lmbd_vis) - 1):
+    plt.fill_between([lmbd_vis[i], lmbd_vis[i + 1]], 0, [Tr_vis[i], Tr_vis[i + 1]], color=colors[i])
 plt.show()
+
+
+
+
+
 
 #SOLE ZENITH
 Z=D_scatter(lmbd,S_z,T_sun)
-plt.plot(lmbd,Z, color='black')
-plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
-plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
-
-mask2 = (lmbd >= 380e-9) & (lmbd <= 750e-9)
-lmbd_vis2= lmbd[mask]
 Z_vis = Z[mask]
 
+def D_scatter_min_z(l):
+    return -D_scatter(l,S_z,T_sun)
+ris_z=optimize.minimize(D_scatter_min_z,x0=5*(10**-7))
+l_max_z=ris_z.x[0]
+z_max=D_scatter(l_max_z,S_z,T_sun)
 
-cmap2 = plt.get_cmap("rainbow")  
-norm2 = mcolors.Normalize(vmin=380e-9, vmax=750e-9) 
-colors2 = cmap2(norm2(lmbd_vis2))
-for i in range(len(lmbd_vis2) - 1):
-    plt.fill_between([lmbd_vis2[i], lmbd_vis2[i + 1]], 0, [Z_vis[i], Z_vis[i + 1]], color=colors2[i])
+plt.plot(lmbd,Z, color='black')
+plt.plot(l_max_z,z_max,'o', color='darkslateblue',label=r'\lambda$  = {:.2e} m'.format(l_max_z))
+plt.plot([l_max_z, l_max_z], [0, z_max], linestyle='dashed', color='darkslateblue', linewidth=1)
+plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+plt.legend()
+for i in range(len(lmbd_vis) - 1):
+    plt.fill_between([lmbd_vis[i], lmbd_vis[i + 1]], 0, [Z_vis[i], Z_vis[i + 1]], color=colors[i])
 plt.show()
+
+
+
+
 
 
 
@@ -247,7 +268,7 @@ te=np.random.uniform(low=0,high=pi,size=1000)
 
 
 plt.hist(te, bins=25, alpha=0.8, color='violet', ec='darkviolet')
-plt.title('Distribuzione uniforme angoli [0,pi]')
+plt.title(r'Distribuzione uniforme angoli [0,$\pi$]')
 plt.show()
 
 
@@ -287,9 +308,17 @@ for t in teta:
 
 fig,axs = plt.subplots(2,2, figsize=(12,6))
 axs[0,0].plot(S_teta(teta),f, color='teal')
+axs[0,0].set_xscale('log')
+axs[0,0].set_yscale('log')
 axs[0,1].plot(S_teta(teta),w, color='pink')
+axs[0,1].set_xscale('log')
+axs[0,1].set_yscale('log')
 axs[1,0].plot(S_teta(teta),v, color='violet')
+axs[1,0].set_xscale('log')
+axs[1,0].set_yscale('log')
 axs[1,1].plot(S_teta(teta),r, color='sienna')
+axs[1,1].set_xscale('log')
+axs[1,1].set_yscale('log')
 plt.show()
 
 
@@ -298,15 +327,8 @@ plt.show()
 
 
 """
-GRAFICO NORMALE SOLE
-plt.scatter(S_teta(teta),f, color='teal')
-plt.show()
-
-
-
-
 FINO A QUI OKK    (considerando buona l'approssimazione dell'esponenziale)
-DA FAR
+DA FARE
 fare meglio i grafici e spiegare andamenti
 """
 
@@ -344,7 +366,7 @@ faccio il fit con la formula D_scatter, utilizzando photons, invece di modificar
 
 cose da fare:
 chi quadro--(aggiustarlo, errori?)
-capire e spiegare come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
+spiegare (in caso nel ppt) come sono scelti  sti parametri, inizialmente p0=[6000, 1e-10], SOPRATTUTTO PERCHÈ CON ALCUNI VALORI MI VA IN OVERFLOW, CON ALTRI NO
 
 FINO A QUI OKK
 """
