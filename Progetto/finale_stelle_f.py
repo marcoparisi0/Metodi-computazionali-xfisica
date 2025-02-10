@@ -14,10 +14,14 @@ from corpo_nero import T_sun,T_sau,T_vega,T_rigel,R_T,n_T,N_T,S_z,S_o
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Analisi spettri di emissione stelle')
-    parser.add_argument('-s', '--Sun',    action='store_true', help="Mostra l'analisi completa relativa al Sole")
-    parser.add_argument('-sa', '--Saurigae',    action='store_true', help="Mostra l'analisi completa relativa alla stella Saurigae")
-    parser.add_argument('-v', '--Vega',    action='store_true', help="Mostra l'analisi completa relativa alla stella Vega")
-    parser.add_argument('-r', '--Rigel',    action='store_true', help="Mostra l'analisi completa relativa alla stella Rigel")
+    parser.add_argument('-s', '--Sun',    action='store_true', help="Mostra l'analisi  relativa al Sole")
+    parser.add_argument('-s2', '--Sun2',    action='store_true', help="Mostra un'analisi differente  relativa al Sole")
+    parser.add_argument('-sa', '--Saurigae',    action='store_true', help="Mostra l'analisi  relativa alla stella Saurigae")
+    parser.add_argument('-sa2', '--Saurigae2',    action='store_true', help="Mostra un'analisi differente relativa alla stella Saurigae")
+    parser.add_argument('-v', '--Vega',    action='store_true', help="Mostra l'analisi  relativa alla stella Vega")
+    parser.add_argument('-v2', '--Vega2',    action='store_true', help="Mostra un'analisi differente relativa alla stella Vega")
+    parser.add_argument('-r', '--Rigel',    action='store_true', help="Mostra l'analisi  relativa alla stella Rigel")
+    parser.add_argument('-r2', '--Rigel2',    action='store_true', help="Mostra un'analisi differente  relativa alla stella Rigel")
     return  parser.parse_args()
 
 args = parse_arguments()
@@ -25,40 +29,58 @@ args = parse_arguments()
 
 
 
+def analisi_stella(nome,T):
 
-def analisi_stella(nome,T,ppo,ppz):
-    """
-    T: temperatura
-    ppo: parametro per trovare il massimo, stella ad orizzonte
-    ppz: parametro per trovare il massimo, stella allo zenith
 
     """
+    Non potendo ottenere analiticamente l'integrale di D(l,T) avevo provato a fare senza successo:
 
+    num_foto=1000    #numero fotoni simulati
+    la=np.linspace(1e-9, 5000e-9, 1000)
+    spettro=cn.D(la,T)
+    I_tot=integrate.simpson(spettro,x=la)
+    yi=np.random.random(num_foto)
+    print(yi)
+
+    def c(l):
+        lh=np.linspace(1e-9,l)
+        return integrate.simpson(cn.D(lh, T),x=lh)/I_tot
+
+    lmbda=[]
+    for i in yi:
+        lmbda.append(1.0/c(i))
+    lmbd0=np.array(lmbda)
+    lmbd=np.sort(lmbd0)
+    """
+
+    
     la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)
     
     y0=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=10000)
     hit0= y0 <= cn.D(la,T)
     lmbd0=la[hit0]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
-    plt.hist(lmbd0,bins=100, color='lightgreen',label=r'valori $\lambda$ selezionati')
+    n0,bins0,_0=plt.hist(lmbd0,bins=100, color='lightgreen',label=r'valori $\lambda$ selezionati')
     plt.title('Distribuzione fotoni emessi da: {}'.format(nome))
     plt.legend()
     plt.show()
 
+    
     y_or=np.random.uniform(low=0,high=np.max(cn.D_scatter(la,S_o,T)),size=10000)
     hit_or= y_or <= cn.D_scatter(la,S_o,T)
     lmbd_or=la[hit_or]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
-    plt.hist(lmbd_or,bins=100, color='darkorchid',label=r'valori $\lambda$ selezionati')
+    n_or,bins_or,_or=plt.hist(lmbd_or,bins=100, color='darkorchid',label=r'valori $\lambda$ selezionati')
     plt.legend()
     plt.title('Distribuzione fotoni con scattering ad orizzonte, emessi da: {}'.format(nome))
     plt.show()
+    
 
     y_z=np.random.uniform(low=0,high=np.max(cn.D_scatter(la,S_z,T)),size=10000)
     hit_z= y_z <= cn.D_scatter(la,S_z,T)
     lmbd_z=la[hit_z]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
-    plt.hist(lmbd_z,bins=100, color='teal',label=r'valori $\lambda$ selezionati')
+    n_z,bins_z,_z=plt.hist(lmbd_z,bins=100, color='teal',label=r'valori $\lambda$ selezionati')
     plt.legend()
     plt.title('Distribuzione fotoni con scattering allo Zenith, emessi da: {}'.format(nome))
     plt.show()
@@ -68,18 +90,50 @@ def analisi_stella(nome,T,ppo,ppz):
     plt.hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
     plt.hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
     plt.legend()
+    plt.text(45*(10**-6), 80, r'temperatura {} = {} K'.format(nome,T), fontsize=12, color='slategrey')
     plt.title('Confronto tra le tre distribuzioni , {}'.format(nome))
     plt.show()
-    
+
+
+    i0=np.argmax(n0) #così trovo il bin più frequente
+    m0=(bins0[i0]+bins0[i0+1])/2
+    print(r'{}:il valore più frequente senza scattering corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm '.format(nome,m0*10**9,((bins0[1]-bins0[0])/np.sqrt(12))*10**9))
+
+    i_or=np.argmax(n_or) 
+    m_or=(bins_or[i_or]+bins_or[i_or+1])/2
+    print(r'{}:il valore più frequente con scattering ad orizzonte corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm'.format(nome,m_or*10**9,((bins_or[1]-bins_or[0])/np.sqrt(12))*10**9))
+
+    i_z=np.argmax(n_z) 
+    m_z=(bins_z[i_z]+bins_z[i_z+1])/2
+    print(r'{}:il valore più frequente con scattering allo zenith corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm'.format(nome,m_z*10**9,((bins_z[1]-bins_z[0])/np.sqrt(12))*10**9))
+
+
+    #andamento flusso fotoni in funzione della posizione della stella
+    #utilizzo distribuzione uniforme di angoli, e integro nelle lunghezze d'onda usando il metodo montecarlo
+    teta=np.random.uniform(low=0,high=pi/2,size=1000)
+    integrale=[]
+    for t in teta:
+        integrale.append(((5*10**(-6))-(10**(-8)))*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/10000)
+    plt.scatter(teta*180/pi,integrale,color='lightcoral',alpha=0.6)
+    plt.xlabel(r"posizione {} dallo zenith [gradi]".format(nome))
+    plt.ylabel(r"flusso fotoni  $fotoni/s m^2$")
+    plt.show()
 
 
 
     
 
-
+def analisi_differente_stella(nome,T,ppo,ppz):
     """
-    Studio più dettagliato con lambda distribuiti uniformemente
+    T: temperatura
+    ppo: parametro per trovare il massimo, stella ad orizzonte
+    ppz: parametro per trovare il massimo, stella allo zenith
+
     
+
+    Studio differente con lambda distribuiti uniformemente e integrazione con scipy simpson
+    """
+
     
     lmbd=np.sort(la)
     # Filtro per  la parte visibile dello spettro per creare la parte colorata nel grafico
@@ -92,7 +146,7 @@ def analisi_stella(nome,T,ppo,ppz):
 
 
     
-    te=np.random.uniform(low=0,high=pi,size=1000)  #angoli, mi serviranno per l'analisi con distanza variabile della stella dallo Zenith
+    te=np.random.uniform(low=0,high=pi/2,size=1000)  #angoli, mi serviranno per l'analisi con distanza variabile della stella dallo Zenith
 
     plt.hist(te, bins=25, alpha=0.8, color='violet', ec='darkviolet')
     plt.title(r'Distribuzione uniforme angoli [0,$\pi$]')
@@ -199,6 +253,7 @@ def analisi_stella(nome,T,ppo,ppz):
 
 
     #andamento flusso fotoni in funzione della posizione della stella
+    #integro con scipy
     
     f=[]
     for t in teta:
@@ -209,10 +264,14 @@ def analisi_stella(nome,T,ppo,ppz):
     #plt.xscale('log')
     #plt.yscale('log')
     plt.title('Andamento flusso integrato di fotoni')
-    plt.xlabel('Distanza  {}  dallo Zenith [m]'.format(nome))
+    plt.xlabel(r"Spessore massa d' aria incontrata dai raggi di {}  [m]".format(nome))
     plt.ylabel(r'$fotoni/s m^2$')
     plt.show()
-    """
+    
+
+
+
+
 
 
 
@@ -223,9 +282,11 @@ def analisi_stella(nome,T,ppo,ppz):
 """
 -------------------------------------------SOLE---------------------------------------------------------------------
 """
-
 if args.Sun == True:
-    analisi_stella("Sole",T_sun,8*(10**-7),5*(10**-7))
+    analisi_stella("Sole",T_sun)
+    
+if args.Sun2 == True:
+    analisi_differente_stella("Sole",T_sun,8*(10**-7),5*(10**-7))
 
 
 
@@ -233,7 +294,10 @@ if args.Sun == True:
 -------------------------------------------SAURIGAE---------------------------------------------------------------------
 """
 if args.Saurigae == True:
-    analisi_stella("Saurigae",T_sau,10**-6,10**-6)
+    analisi_stella("Saurigae",T_sau)
+    
+if args.Saurigae2 == True:
+    analisi_differente_stella("Saurigae",T_sau,10**-6,10**-6)
 
 
 
@@ -242,7 +306,10 @@ if args.Saurigae == True:
 -------------------------------------------VEGA---------------------------------------------------------------------
 """
 if args.Vega == True:
-    analisi_stella("Vega",T_vega,10**-6,4*(10**-7))
+    analisi_stella("Vega",T_vega)
+
+if args.Vega2 == True:
+    analisi_differente_stella("Vega",T_vega,10**-6,4*(10**-7))
 
     
 
@@ -252,4 +319,7 @@ if args.Vega == True:
 -------------------------------------------RIGEL---------------------------------------------------------------------
 """
 if args.Rigel == True:
-    analisi_stella("Rigel",T_rigel,10**-6,4*(10**-7))
+    analisi_stella("Rigel",T_rigel)
+    
+if args.Rigel2 == True:
+    analisi_differente_stella("Rigel",T_rigel,10**-6,4*(10**-7))
