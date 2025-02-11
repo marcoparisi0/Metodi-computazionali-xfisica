@@ -14,9 +14,9 @@ T_rigel=25*(10**3)   #K
 #parametri terrestri
 R_T=6378000 # [m]   , Raggio terrestre
 n_T=1.00029  #indice di rifrazione atmosfera terrestre
-N_T=2.504*(10**25) # densità di molecole terrestre
+N_T=2.504*(10**25) # densità di molecole terrestre   [molecole/m^3]
 S_z=8000 #m
-S_o=np.sqrt((R_T+S_z)**2 -  R_T**2)
+S_o=np.sqrt((R_T+S_z)**2 -  R_T**2) #m
 
 
 
@@ -25,7 +25,7 @@ S_o=np.sqrt((R_T+S_z)**2 -  R_T**2)
 def S_teta(t):
      
     """
-    Funzione che descrive lo spessore di massa di aria dipendentemente da un angolo generico
+    Funzione che descrive lo spessore di massa di aria dipendentemente dall'angolo dallo zenith
     Parametri
     -----------
         t: Angolo
@@ -41,7 +41,7 @@ def S_teta(t):
 
 def B(l,T):
      """
-    Funzione che descrive la densità di energia irradiata da una stella
+    Funzione che descrive la densità di energia irradiata da una stella (spettro)
     Parametri
     -----------
         l: Lunghezza d'onda
@@ -81,7 +81,7 @@ def D(l,T):
 
 def beta(l):
      """
-    Funzione che descrive la  probabilità di interazione dei fotoni con l'atmosfera terrestre
+    Funzione che descrive cofficiente di scattering Rayleigh usato per la  probabilità di interazione dei fotoni con l'atmosfera terrestre
     Parametri
     -----------
         l: Lunghezza d'onda
@@ -92,7 +92,7 @@ def beta(l):
     -----------
  
     """
-     return 8*pow(np.pi,3)*pow(n_T**2 - 1,2)/(3*N_T*l**4)
+     return 8*pow(pi,3)*pow((n_T**2) - 1,2)/(3*N_T*(l**4))
 
 
 def D_scatter(l,s,T):
