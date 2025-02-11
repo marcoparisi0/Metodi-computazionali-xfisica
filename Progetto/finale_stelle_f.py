@@ -29,9 +29,13 @@ args = parse_arguments()
 
 
 
-def analisi_stella(nome,T):
-
-
+def analisi_stella(nome,T,mi,ma):
+    """
+    T: Temperatura stella
+    mi: minimo lunghezza d'onda considerata
+    ma: massimo lunghezza d'onda considerata
+    """
+    
     """
     Non potendo ottenere analiticamente l'integrale di D(l,T) avevo provato a fare senza successo:
 
@@ -54,14 +58,15 @@ def analisi_stella(nome,T):
     """
 
     
-    la=np.random.uniform(low=10**(-8), high=5*10**(-6), size=10000)
+    la=np.random.uniform(low=mi, high=ma, size=10000)
     
     y0=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=10000)
     hit0= y0 <= cn.D(la,T)
     lmbd0=la[hit0]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
-    n0,bins0,_0=plt.hist(lmbd0,bins=100, color='lightgreen',label=r'valori $\lambda$ selezionati')
+    n0,bins0,_0=plt.hist(lmbd0,bins=100, color='orangered',label=r'valori $\lambda$ selezionati')
     plt.title('Distribuzione fotoni emessi da: {}'.format(nome))
+    plt.xlabel("Lunghezza d'onda [m]")
     plt.legend()
     plt.show()
 
@@ -73,6 +78,7 @@ def analisi_stella(nome,T):
     n_or,bins_or,_or=plt.hist(lmbd_or,bins=100, color='darkorchid',label=r'valori $\lambda$ selezionati')
     plt.legend()
     plt.title('Distribuzione fotoni con scattering ad orizzonte, emessi da: {}'.format(nome))
+    plt.xlabel("Lunghezza d'onda [m]")
     plt.show()
     
 
@@ -83,29 +89,31 @@ def analisi_stella(nome,T):
     n_z,bins_z,_z=plt.hist(lmbd_z,bins=100, color='teal',label=r'valori $\lambda$ selezionati')
     plt.legend()
     plt.title('Distribuzione fotoni con scattering allo Zenith, emessi da: {}'.format(nome))
+    plt.xlabel("Lunghezza d'onda [m]")
     plt.show()
 
     #confronto
-    plt.hist(lmbd0,bins=100, color='lightgreen',alpha=0.5,label=r'valori $\lambda$ no scattering')
+    plt.hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
     plt.hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
     plt.hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
     plt.legend()
-    plt.text(45*(10**-6), 80, r'temperatura {} = {} K'.format(nome,T), fontsize=12, color='slategrey')
-    plt.title('Confronto tra le tre distribuzioni , {}'.format(nome))
+    plt.title('{}, confronto tra le tre distribuzioni, T = {} K'.format(nome,T))
+    plt.xlabel("Lunghezza d'onda [m]")
+    plt.ylabel("Distribuzione fotoni")
     plt.show()
 
 
     i0=np.argmax(n0) #così trovo il bin più frequente
     m0=(bins0[i0]+bins0[i0+1])/2
-    print(r'{}:il valore più frequente senza scattering corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm '.format(nome,m0*10**9,((bins0[1]-bins0[0])/np.sqrt(12))*10**9))
+    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm '.format(nome,r"il valore più frequente senza scattering corrisponde alla $\lambda$",m0*10**9,((bins0[1]-bins0[0])/np.sqrt(12))*10**9))
 
     i_or=np.argmax(n_or) 
     m_or=(bins_or[i_or]+bins_or[i_or+1])/2
-    print(r'{}:il valore più frequente con scattering ad orizzonte corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm'.format(nome,m_or*10**9,((bins_or[1]-bins_or[0])/np.sqrt(12))*10**9))
+    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm'.format(nome,r"il valore più frequente con scattering ad orizzonte corrisponde alla $\lambda$",m_or*10**9,((bins_or[1]-bins_or[0])/np.sqrt(12))*10**9))
 
     i_z=np.argmax(n_z) 
     m_z=(bins_z[i_z]+bins_z[i_z+1])/2
-    print(r'{}:il valore più frequente con scattering allo zenith corrisponde alla $\lambda$ =  {:.2f} $\pm$ {:.2f} nm'.format(nome,m_z*10**9,((bins_z[1]-bins_z[0])/np.sqrt(12))*10**9))
+    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm'.format(nome,r"il valore più frequente con scattering allo zenith corrisponde alla $\lambda$ ",m_z*10**9,((bins_z[1]-bins_z[0])/np.sqrt(12))*10**9))
 
 
     #andamento flusso fotoni in funzione della posizione della stella
@@ -113,7 +121,7 @@ def analisi_stella(nome,T):
     teta=np.random.uniform(low=0,high=pi/2,size=1000)
     integrale=[]
     for t in teta:
-        integrale.append(((5*10**(-6))-(10**(-8)))*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/10000)
+        integrale.append((ma-mi)*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/10000)
     plt.scatter(teta*180/pi,integrale,color='lightcoral',alpha=0.6)
     plt.xlabel(r"posizione {} dallo zenith [gradi]".format(nome))
     plt.ylabel(r"flusso fotoni  $fotoni/s m^2$")
@@ -121,11 +129,24 @@ def analisi_stella(nome,T):
 
 
 
+
+
+
+
+
+
+
+
+
+
     
 
-def analisi_differente_stella(nome,T,ppo,ppz):
+def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
     """
     T: temperatura
+    mi: minimo lunghezza d'onda considerata
+    ma: massimo lunghezza d'onda considerata
+    pp: parametro per trovare il massimo, no scattering 
     ppo: parametro per trovare il massimo, stella ad orizzonte
     ppz: parametro per trovare il massimo, stella allo zenith
 
@@ -133,7 +154,7 @@ def analisi_differente_stella(nome,T,ppo,ppz):
 
     Studio differente con lambda distribuiti uniformemente e integrazione con scipy simpson
     """
-
+    la=np.random.uniform(low=mi, high=ma, size=10000)
     
     lmbd=np.sort(la)
     # Filtro per  la parte visibile dello spettro per creare la parte colorata nel grafico
@@ -149,7 +170,7 @@ def analisi_differente_stella(nome,T,ppo,ppz):
     te=np.random.uniform(low=0,high=pi/2,size=1000)  #angoli, mi serviranno per l'analisi con distanza variabile della stella dallo Zenith
 
     plt.hist(te, bins=25, alpha=0.8, color='violet', ec='darkviolet')
-    plt.title(r'Distribuzione uniforme angoli [0,$\pi$]')
+    plt.title(r'Distribuzione uniforme angoli [0,$\pi$/2]')
     plt.show()
 
     teta=np.sort(te)
@@ -177,10 +198,27 @@ def analisi_differente_stella(nome,T,ppo,ppz):
     
 
     #DISTRIBUZIONE FOTONI SENZA ASSORBIMENTO
-    plt.plot(lmbd,cn.D(lmbd,T), color='orchid')
+    A=cn.D(lmbd,T)
+    A_vis=A[mask]
+
+    def D_scat(l):
+        return -cn.D(l,T)
+    ris=optimize.minimize(D_scat,x0=ppz)
+    l_max=ris.x[0]
+    mmm=cn.D(l_max,T)
+
+    
+    plt.plot(lmbd,A, color='black')
+    plt.plot(l_max,mmm,'o',color='darkslateblue',label=r'$\lambda$  = {:.2e} m'.format(l_max))
+    plt.plot([l_max, l_max], [0,mmm], linestyle='dashed', color='darkslateblue', linewidth=1)
     plt.title('distribuzione fotoni {} senza assorbimento'.format(nome))
+    plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
+    plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.xlabel(r'$\lambda$ [m]')
     plt.ylabel(r'$fotoni/sm^3$')
+
+    for i in range(len(lmbd_vis) - 1):
+       plt.fill_between([lmbd_vis[i], lmbd_vis[i + 1]], 0, [A_vis[i], A_vis[i + 1]], color=colors[i])
     plt.show()
     
 
@@ -221,7 +259,7 @@ def analisi_differente_stella(nome,T,ppo,ppz):
 
     def D_scatter_min_z(l):
        return -cn.D_scatter(l,S_z,T)
-    ris_z=optimize.minimize(D_scatter_min_z,x0=ppz)
+    ris_z=optimize.minimize(D_scatter_min_z,x0=pp)
     l_max_z=ris_z.x[0]
     z_max=cn.D_scatter(l_max_z,S_z,T)
 
@@ -242,8 +280,8 @@ def analisi_differente_stella(nome,T,ppo,ppz):
 
 
     #confronto
-    plt.plot(lmbd,cn.D(lmbd,T), color='goldenrod',label='senza assorbimento')
-    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T),  color='gold',label='scattering posizione Zenith')
+    plt.plot(lmbd,cn.D(lmbd,T), color='orangered',label='senza assorbimento')
+    plt.plot(lmbd,cn.D_scatter(lmbd,S_z,T),  color='steelblue',label='scattering posizione Zenith')
     plt.plot(lmbd,cn.D_scatter(lmbd,S_o,T),  color='tan',label='scattering posizione Orizzonte')
     plt.legend()
     plt.title('Confronto distribuzioni fotoni')
@@ -261,8 +299,6 @@ def analisi_differente_stella(nome,T,ppo,ppz):
        flusso=integrate.simpson(integranda, x=lmbd)
        f.append(flusso)
     plt.plot(cn.S_teta(teta),f, color='teal')
-    #plt.xscale('log')
-    #plt.yscale('log')
     plt.title('Andamento flusso integrato di fotoni')
     plt.xlabel(r"Spessore massa d' aria incontrata dai raggi di {}  [m]".format(nome))
     plt.ylabel(r'$fotoni/s m^2$')
@@ -283,10 +319,10 @@ def analisi_differente_stella(nome,T,ppo,ppz):
 -------------------------------------------SOLE---------------------------------------------------------------------
 """
 if args.Sun == True:
-    analisi_stella("Sole",T_sun)
+    analisi_stella("Sole",T_sun,10**-8,5*10**-6)
     
 if args.Sun2 == True:
-    analisi_differente_stella("Sole",T_sun,8*(10**-7),5*(10**-7))
+    analisi_differente_stella("Sole",T_sun,10**-8,5*10**-6, 5*(10**-7), 8*(10**-7), 5*(10**-7))
 
 
 
@@ -294,10 +330,10 @@ if args.Sun2 == True:
 -------------------------------------------SAURIGAE---------------------------------------------------------------------
 """
 if args.Saurigae == True:
-    analisi_stella("Saurigae",T_sau)
+    analisi_stella("Saurigae",T_sau,10**-8,10**-5)
     
 if args.Saurigae2 == True:
-    analisi_differente_stella("Saurigae",T_sau,10**-6,10**-6)
+    analisi_differente_stella("Saurigae",T_sau,10**-8, 10**-5, 1.3*(10**-6), 10**-6,10**-6)
 
 
 
@@ -306,10 +342,10 @@ if args.Saurigae2 == True:
 -------------------------------------------VEGA---------------------------------------------------------------------
 """
 if args.Vega == True:
-    analisi_stella("Vega",T_vega)
+    analisi_stella("Vega",T_vega,10**-8,5*10**-6)
 
 if args.Vega2 == True:
-    analisi_differente_stella("Vega",T_vega,10**-6,4*(10**-7))
+    analisi_differente_stella("Vega",T_vega,10**-8,5*10**-6, 2*(10**-7), 10**-6, 4*(10**-7))
 
     
 
@@ -319,7 +355,7 @@ if args.Vega2 == True:
 -------------------------------------------RIGEL---------------------------------------------------------------------
 """
 if args.Rigel == True:
-    analisi_stella("Rigel",T_rigel)
+    analisi_stella("Rigel",T_rigel,10**-8,2*10**-6)
     
 if args.Rigel2 == True:
-    analisi_differente_stella("Rigel",T_rigel,10**-6,4*(10**-7))
+    analisi_differente_stella("Rigel",T_rigel,10**-8,2*10**-6, 10**-7, 10**-6, 4*(10**-7))

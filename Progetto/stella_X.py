@@ -73,7 +73,7 @@ for i in range(len(ph)):
 # gradi di libertà
 d = len(ll)-len(pm)
 
-print('Il chi quadro ridotto vale  ', chi2/d)
+print('{:<40} {:.2f} '.format('Il chi quadro ridotto vale: ', chi2/d))
 
 
 
