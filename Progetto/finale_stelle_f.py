@@ -203,7 +203,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
 
     def D_scat(l):
         return -cn.D(l,T)
-    ris=optimize.minimize(D_scat,x0=ppz)
+    ris=optimize.minimize(D_scat,x0=pp)
     l_max=ris.x[0]
     mmm=cn.D(l_max,T)
 
@@ -211,7 +211,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
     plt.plot(lmbd,A, color='black')
     plt.plot(l_max,mmm,'o',color='darkslateblue',label=r'$\lambda$  = {:.2e} m'.format(l_max))
     plt.plot([l_max, l_max], [0,mmm], linestyle='dashed', color='darkslateblue', linewidth=1)
-    plt.title('distribuzione fotoni {} senza assorbimento'.format(nome))
+    plt.title('densità fotoni {} senza assorbimento'.format(nome))
     plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.xlabel(r'$\lambda$ [m]')
@@ -241,7 +241,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
     plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.legend()
-    plt.title('Distribuzione fotoni,scattering {}  ad orizzonte'.format(nome))
+    plt.title('densità fotoni,scattering {}  ad orizzonte'.format(nome))
     plt.xlabel("lunghezza d'onda [m]")
     plt.ylabel(r"$fotoni/sm^3$")
 
@@ -259,7 +259,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
 
     def D_scatter_min_z(l):
        return -cn.D_scatter(l,S_z,T)
-    ris_z=optimize.minimize(D_scatter_min_z,x0=pp)
+    ris_z=optimize.minimize(D_scatter_min_z,x0=ppz)
     l_max_z=ris_z.x[0]
     z_max=cn.D_scatter(l_max_z,S_z,T)
 
@@ -269,7 +269,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
     plt.axvline(380*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.axvline(750*(10**-9),   color='slategrey',      linewidth=0.4, linestyle='dashed')
     plt.legend()
-    plt.title('Distribuzione fotoni,scattering {} allo zenith'.format(nome))
+    plt.title('densità fotoni,scattering {} allo zenith'.format(nome))
     plt.xlabel("lunghezza d'onda [m]")
     plt.ylabel(r"$fotoni/sm^3$")
     for i in range(len(lmbd_vis) - 1):
@@ -342,10 +342,10 @@ if args.Saurigae2 == True:
 -------------------------------------------VEGA---------------------------------------------------------------------
 """
 if args.Vega == True:
-    analisi_stella("Vega",T_vega,10**-8,5*10**-6)
+    analisi_stella("Vega",T_vega,10**-8,4*10**-6)
 
 if args.Vega2 == True:
-    analisi_differente_stella("Vega",T_vega,10**-8,5*10**-6, 2*(10**-7), 10**-6, 4*(10**-7))
+    analisi_differente_stella("Vega",T_vega,10**-8,5*10**-6, 2*(10**-7),10**-6, 4*(10**-7))
 
     
 
