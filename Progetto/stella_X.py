@@ -17,38 +17,33 @@ l_nm=dati['lambda (nm)']
 ll=l_nm*(10**(-9))
 ph=dati['photons']  
 
-
 plt.plot(ll,ph, color= 'green')
 plt.title('Spettro stella X')
 plt.xlabel("Lunghezza d'onda [m]")
 plt.ylabel(r"radiazione osservata [$J/s m^2$]")
 plt.show()
-
-
-
-
+plt.bar(ll,ph,width=20*(10**-9), color='gold', edgecolor='goldenrod')
+plt.show()
 
 def B_scatter(l,T,scala):
+      
+
       """
-    Funzione che descrive la densità di energia irradiata da una stella considerando l'effetto dello scattering di Rayleigh. Da utilizzare nel fit
-    Parametri
-    -----------
-        l: Lunghezza d'onda
-        T: Temperatura della stella
-        Scala: fattore di scala per il fit
+      Funzione che descrive la densità di energia irradiata da una stella considerando l'effetto dello scattering di Rayleigh. Da utilizzare nel fit
+      Parametri
+      -----------
+      l: Lunghezza d'onda
+      T: Temperatura della stella
+      Scala: fattore di scala per il fit
     
-    Restituisce
-        scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
+      Restituisce
+      
+      scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-beta(l)*S_teta(pi/4))   
         
-    -----------
+      -----------
  
-    """
+      """
       return scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-cn.beta(l)*cn.S_teta(pi/4))   
-
-
-
-
-  
 
 pm, pm_cov = optimize.curve_fit(B_scatter,ll,ph,p0=[6000, 1e-13])  
 
@@ -60,7 +55,6 @@ print('{:<40} {:.1f} ± {:.1f} K'.format('La temperatura della StellaX  è:', Tx
 
 
 ph_fit=B_scatter(ll,Tx,sk)
-#print('valori',ph,ph_fit)
 
 
 #chi2 =  np.sum(((ph-ph_fit)**2)/ph)    #in alcuni punti divide per zero...
@@ -84,7 +78,7 @@ axs[0].plot(ll,ph,color='darkgreen', label='Valori osservati')
 axs[0].plot(ll,ph_fit, color='red', label='Fit')
 axs[0].text(2.5*(10**-6), 300, r'$\chi^2$ rid : {:3.2f} '.format(chi2/d), fontsize=14, color='slategrey')
 axs[0].legend(fontsize=14, frameon=False)
-axs[0].set_ylabel(r"radiazione osservata [$J/s m^2$]")
+axs[0].set_ylabel(r"radiazione  [$J/s m^2$]")
 axs[1].errorbar(ll, ph/ph_fit,color='royalblue', fmt='o',alpha=0.5, label='Rapporto')
 axs[1].grid(True, axis='y')
 axs[1].axhline(1, color='red')
@@ -96,3 +90,59 @@ axs[2].set_ylabel(r"[$J/s m^2$]")
 axs[2].legend(fontsize=12)
 plt.xlabel("Lunghezza d'onda [m]")
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+mask= ph>0
+ph_t=ph.copy()
+ll_t=ll.copy()
+ph_t=np.array(ph[mask])
+ll_t=np.array(ll[mask])
+#print(ll_t)
+
+plt.plot(ll_t,ph_t, color= 'green')
+plt.title('Spettro stella X')
+plt.xlabel("Lunghezza d'onda [m]")
+plt.ylabel(r"radiazione osservata [$J/s m^2$]")
+plt.show()
+
+plt.bar(ll_t,ph_t,width=20*(10**-9), color='gold', edgecolor='goldenrod')
+plt.show()
+
+def spettro_mod(l,T,scala):   
+      return scala*(2*h*(c**2)/((np.exp(h*c/(l*k*T))-1)*(l**5)))*np.exp(-cn.beta(l)*cn.S_teta(pi/4))   
+
+plt.bar(ll_t,ph_t,width=20*(10**-9), color='gold', edgecolor='goldenrod')
+plt.plot(ll_t,spettro_mod(ll_t,6400,10**-11), color='red')
+plt.show()
+
+bins_m=(ll_t[:-1]+ll_t[1:])/2
+print(bins_m)
+
+params, params_covariance = optimize.curve_fit(spettro_mod,bins_m,ph_t[:1],sigma=np.sqrt(ph_t[:1]),absolute_sigma=True,p0=[6000,10**-10])    
+
+
+Tx=params[0]
+sk=params[1]
+
+
+print('{:<40} {:.1f} ± {:.1f} K'.format('La temperatura della StellaX  è:', Tx, np.sqrt(params_covariance[0,0])))
+
+
+ph_fit=spettro_mod(ll_t,Tx,sk)
+plt.plot(ll_t,ph_fit,color='red')
+plt.bar(ll_t,ph_t,width=20*(10**-9), color='gold', edgecolor='goldenrod')
+plt.show()
+"""
+
