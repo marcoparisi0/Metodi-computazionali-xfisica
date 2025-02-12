@@ -39,4 +39,10 @@ File finale_stelle_f.py: contiene l'analisi con metodo montecarlo relativa alle 
 
 
 
-File stella_X.py: contiene il fit dei dati contenuti nel file csv.
+File stella_X.py: contiene il fit dei dati contenuti nel file csv, in due "modalità"
+
+
+--mod1
+
+
+--mod2
