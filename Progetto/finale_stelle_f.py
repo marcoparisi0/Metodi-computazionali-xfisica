@@ -36,28 +36,7 @@ def analisi_stella(nome,T,mi,ma):
     ma: massimo lunghezza d'onda considerata
     """
     
-    """
-    Non potendo ottenere analiticamente l'integrale di D(l,T) avevo provato a fare senza successo:
-
-    num_foto=1000    #numero fotoni simulati
-    la=np.linspace(1e-9, 5000e-9, 1000)
-    spettro=cn.D(la,T)
-    I_tot=integrate.simpson(spettro,x=la)
-    yi=np.random.random(num_foto)
-    print(yi)
-
-    def c(l):
-        lh=np.linspace(1e-9,l)
-        return integrate.simpson(cn.D(lh, T),x=lh)/I_tot
-
-    lmbda=[]
-    for i in yi:
-        lmbda.append(1.0/c(i))
-    lmbd0=np.array(lmbda)
-    lmbd=np.sort(lmbd0)
-    """
-
-    
+   
     la=np.random.uniform(low=mi, high=ma, size=10000)
     
     y0=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=10000)
