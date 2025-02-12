@@ -105,15 +105,15 @@ def analisi_stella(nome,T,mi,ma):
 
     i0=np.argmax(n0) #così trovo il bin più frequente
     m0=(bins0[i0]+bins0[i0+1])/2
-    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm '.format(nome,r"il valore più frequente senza scattering corrisponde alla $\lambda$",m0*10**9,((bins0[1]-bins0[0])/np.sqrt(12))*10**9))
+    print('{}: il valore più frequente senza scattering corrisponde alla {} =  {:.2f} ±  {:.2f} nm '.format(nome,r"$\lambda$",m0*10**9,((bins0[1]-bins0[0])/np.sqrt(12))*10**9))
 
     i_or=np.argmax(n_or) 
     m_or=(bins_or[i_or]+bins_or[i_or+1])/2
-    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm'.format(nome,r"il valore più frequente con scattering ad orizzonte corrisponde alla $\lambda$",m_or*10**9,((bins_or[1]-bins_or[0])/np.sqrt(12))*10**9))
+    print(r'{}:il valore più frequente con scattering ad orizzonte corrisponde alla {} =  {:.2f} ±  {:.2f} nm'.format(nome,r"$\lambda$",m_or*10**9,((bins_or[1]-bins_or[0])/np.sqrt(12))*10**9))
 
     i_z=np.argmax(n_z) 
     m_z=(bins_z[i_z]+bins_z[i_z+1])/2
-    print(r'{}:{} =  {:.2f} $\pm$ {:.2f} nm'.format(nome,r"il valore più frequente con scattering allo zenith corrisponde alla $\lambda$ ",m_z*10**9,((bins_z[1]-bins_z[0])/np.sqrt(12))*10**9))
+    print(r'{}:il valore più frequente con scattering allo zenith corrisponde alla  {} =  {:.2f} ±  {:.2f} nm'.format(nome,r"$\lambda$ ",m_z*10**9,((bins_z[1]-bins_z[0])/np.sqrt(12))*10**9))
 
 
     #andamento flusso fotoni in funzione della posizione della stella
@@ -124,7 +124,7 @@ def analisi_stella(nome,T,mi,ma):
         integrale.append((ma-mi)*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/10000)
     plt.scatter(teta*180/pi,integrale,color='lightcoral',alpha=0.6)
     plt.xlabel(r"posizione {} dallo zenith [gradi]".format(nome))
-    plt.ylabel(r"flusso fotoni  $fotoni/s m^2$")
+    plt.ylabel(r"flusso fotoni  $[fotoni/s m^2]$")
     plt.show()
 
 
