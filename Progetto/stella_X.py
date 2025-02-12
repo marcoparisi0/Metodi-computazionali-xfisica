@@ -122,8 +122,9 @@ if args.mod2 == True:
       ll_t=ll.copy()
       ph_t=np.array(ph[mask])
       ll_t=np.array(ll[mask])
-      #print(ll_t)
-      
+      #print(ph_t)
+      #print(len(ph_t))
+      #print(len(ll_t))
       
       
       plt.bar(ll_t,ph_t,width=20*(10**-9), color='gold', edgecolor='goldenrod')
@@ -138,8 +139,9 @@ if args.mod2 == True:
       
       bins_m=(ll_t[:-1]+ll_t[1:])/2
       #print(bins_m)
+      #print(len(bins_m))
       
-      params, params_covariance = optimize.curve_fit(spettro_mod,bins_m,ph_t[1:],sigma=np.sqrt(ph_t[1:]),absolute_sigma=True,p0=[5000,10**-10])    
+      params, params_covariance = optimize.curve_fit(spettro_mod,bins_m,ph_t[:-1],sigma=np.sqrt(ph_t[:-1]),absolute_sigma=True,p0=[5000,10**-10])    
       
       
       Tx=params[0]
