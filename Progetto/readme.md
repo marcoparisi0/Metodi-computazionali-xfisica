@@ -45,4 +45,4 @@ File stella_X.py: contiene il fit dei dati contenuti nel file csv, in due "modal
 --mod1
 
 
---mod2 istogramma, valori con errore
+--mod2 , istogramma, valori con errore
