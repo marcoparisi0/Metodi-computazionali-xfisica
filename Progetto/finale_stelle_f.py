@@ -29,17 +29,20 @@ args = parse_arguments()
 
 
 
-def analisi_stella(nome,T,mi,ma):
+def analisi_stella(nome,T,mi,ma,N_fotoni):
     """
     T: Temperatura stella
     mi: minimo lunghezza d'onda considerata
     ma: massimo lunghezza d'onda considerata
+    N_fo: quantità utilizzata nell'estrazione
     """
-    
+
+
    
-    la=np.random.uniform(low=mi, high=ma, size=10000)
+    la=np.random.uniform(low=mi, high=ma, size=N_fotoni)
+  
     
-    y0=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=10000)
+    y0=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=N_fotoni)
     hit0= y0 <= cn.D(la,T)
     lmbd0=la[hit0]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
@@ -50,7 +53,7 @@ def analisi_stella(nome,T,mi,ma):
     plt.show()
 
     
-    y_or=np.random.uniform(low=0,high=np.max(cn.D_scatter(la,S_o,T)),size=10000)
+    y_or=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=N_fotoni)
     hit_or= y_or <= cn.D_scatter(la,S_o,T)
     lmbd_or=la[hit_or]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
@@ -61,7 +64,7 @@ def analisi_stella(nome,T,mi,ma):
     plt.show()
     
 
-    y_z=np.random.uniform(low=0,high=np.max(cn.D_scatter(la,S_z,T)),size=10000)
+    y_z=np.random.uniform(low=0,high=np.max(cn.D(la,T)),size=N_fotoni)
     hit_z= y_z <= cn.D_scatter(la,S_z,T)
     lmbd_z=la[hit_z]
     plt.hist(la,bins=100,color='pink', label=r'valori $\lambda$ generati')
@@ -75,24 +78,24 @@ def analisi_stella(nome,T,mi,ma):
     fig,axs = plt.subplots(2,2, figsize=(12,6))
     plt.title('{}, confronto tra le tre distribuzioni normalizzate, T = {} K'.format(nome,T))
     
-    axs[0,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
-    axs[0,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
-    axs[0,0].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[0,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
+    axs[0,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
+    axs[0,0].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
     axs[0,0].legend()
     axs[0,0].set_xlabel("Lunghezza d'onda [m]")
     axs[0,0].set_ylabel("Distribuzione fotoni")
-    axs[1,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
-    axs[1,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
+    axs[1,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
+    axs[1,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
     axs[1,0].legend()
     axs[1,0].set_xlabel("Lunghezza d'onda [m]")
     axs[1,0].set_ylabel("Distribuzione fotoni")
-    axs[0,1].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
-    axs[0,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[0,1].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
+    axs[0,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
     axs[0,1].legend()
     axs[0,1].set_xlabel("Lunghezza d'onda [m]")
     axs[0,1].set_ylabel("Distribuzione fotoni")
-    axs[1,1].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
-    axs[1,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[1,1].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
+    axs[1,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
     axs[1,1].legend()
     axs[1,1].set_xlabel("Lunghezza d'onda [m]")
     axs[1,1].set_ylabel("Distribuzione fotoni")
@@ -316,7 +319,7 @@ def analisi_differente_stella(nome,T,mi,ma,pp,ppo,ppz):
 -------------------------------------------SOLE---------------------------------------------------------------------
 """
 if args.Sun == True:
-    analisi_stella("Sole",T_sun,10**-8,5*10**-6)
+    analisi_stella("Sole",T_sun,10**-8,5*10**-6,20000)
     
 if args.Sun2 == True:
     analisi_differente_stella("Sole",T_sun,10**-8,5*10**-6, 5*(10**-7), 8*(10**-7), 5*(10**-7))
@@ -327,7 +330,7 @@ if args.Sun2 == True:
 -------------------------------------------SAURIGAE---------------------------------------------------------------------
 """
 if args.Saurigae == True:
-    analisi_stella("Saurigae",T_sau,10**-8,10**-5)
+    analisi_stella("Saurigae",T_sau,10**-8,10**-5,20000)
     
 if args.Saurigae2 == True:
     analisi_differente_stella("Saurigae",T_sau,10**-8, 10**-5, 1.3*(10**-6), 10**-6,10**-6)
@@ -339,7 +342,7 @@ if args.Saurigae2 == True:
 -------------------------------------------VEGA---------------------------------------------------------------------
 """
 if args.Vega == True:
-    analisi_stella("Vega",T_vega,10**-8,4*10**-6)
+    analisi_stella("Vega",T_vega,10**-8,4*10**-6,20000)
 
 if args.Vega2 == True:
     analisi_differente_stella("Vega",T_vega,10**-8,5*10**-6, 2*(10**-7),10**-6, 4*(10**-7))
@@ -352,7 +355,7 @@ if args.Vega2 == True:
 -------------------------------------------RIGEL---------------------------------------------------------------------
 """
 if args.Rigel == True:
-    analisi_stella("Rigel",T_rigel,10**-8,2*10**-6)
+    analisi_stella("Rigel",T_rigel,10**-8,1.6*10**-6,100000)
     
 if args.Rigel2 == True:
     analisi_differente_stella("Rigel",T_rigel,10**-8,2*10**-6, 10**-7, 10**-6, 4*(10**-7))
