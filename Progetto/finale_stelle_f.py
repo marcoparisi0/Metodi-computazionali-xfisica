@@ -72,13 +72,31 @@ def analisi_stella(nome,T,mi,ma):
     plt.show()
 
     #confronto
-    plt.hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
-    plt.hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
-    plt.hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith')
-    plt.legend()
-    plt.title('{}, confronto tra le tre distribuzioni, T = {} K'.format(nome,T))
-    plt.xlabel("Lunghezza d'onda [m]")
-    plt.ylabel("Distribuzione fotoni")
+    fig,axs = plt.subplots(2,2, figsize=(12,6))
+    plt.title('{}, confronto tra le tre distribuzioni normalizzate, T = {} K'.format(nome,T))
+    
+    axs[0,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
+    axs[0,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
+    axs[0,0].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[0,0].legend()
+    axs[0,0].set_xlabel("Lunghezza d'onda [m]")
+    axs[0,0].set_ylabel("Distribuzione fotoni")
+    axs[1,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
+    axs[1,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
+    axs[1,0].legend()
+    axs[1,0].set_xlabel("Lunghezza d'onda [m]")
+    axs[1,0].set_ylabel("Distribuzione fotoni")
+    axs[0,1].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering',density=True)
+    axs[0,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[0,1].legend()
+    axs[0,1].set_xlabel("Lunghezza d'onda [m]")
+    axs[0,1].set_ylabel("Distribuzione fotoni")
+    axs[1,1].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte',density=True)
+    axs[1,1].hist(lmbd_z,bins=100, color='teal',alpha=0.5,label=r'valori $\lambda$ scattering zenith',density=True)
+    axs[1,1].legend()
+    axs[1,1].set_xlabel("Lunghezza d'onda [m]")
+    axs[1,1].set_ylabel("Distribuzione fotoni")
+  
     plt.show()
 
 
