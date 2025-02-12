@@ -76,7 +76,7 @@ def analisi_stella(nome,T,mi,ma,N_fotoni):
 
     #confronto
     fig,axs = plt.subplots(2,2, figsize=(12,6))
-    plt.title('{}, confronto tra le tre distribuzioni normalizzate, T = {} K'.format(nome,T))
+    fig.suptitle('{}, confronto tra le tre distribuzioni, T = {} K'.format(nome,T))
     
     axs[0,0].hist(lmbd0,bins=100, color='orangered',alpha=0.5,label=r'valori $\lambda$ no scattering')
     axs[0,0].hist(lmbd_or,bins=100, color='darkorchid',alpha=0.5,label=r'valori $\lambda$ scattering orizzonte')
@@ -121,7 +121,7 @@ def analisi_stella(nome,T,mi,ma,N_fotoni):
     teta=np.random.uniform(low=0,high=pi/2,size=1000)
     integrale=[]
     for t in teta:
-        integrale.append((ma-mi)*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/10000)
+        integrale.append((ma-mi)*np.sum(cn.D_scatter(la,cn.S_teta(t),T))/N_fotoni)
     plt.scatter(teta*180/pi,integrale,color='lightcoral',alpha=0.6)
     plt.xlabel(r"posizione {} dallo zenith [gradi]".format(nome))
     plt.ylabel(r"flusso fotoni  $[fotoni/s m^2]$")
